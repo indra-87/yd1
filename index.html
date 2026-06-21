@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no" />
+<title>인사 - 발음 연습</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root{
+    --cream:#FFF8EC; --cream-deep:#FBEFD9; --coral:#FF6B7A; --coral-deep:#E84F62;
+    --leaf:#5FA777; --leaf-deep:#3F8159; --ink:#4A3B30; --ink-soft:#8A7A6B;
+    --card:#FFFFFF; --gold:#FFC93C; --shadow:0 10px 0 rgba(74,59,48,0.08);
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color: transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: radial-gradient(circle at 10% 0%, var(--cream-deep), var(--cream) 60%);
+    font-family:'Noto Sans KR', sans-serif; color:var(--ink); min-height:100vh;
+    padding: 18px 16px 60px; overscroll-behavior:none;
+  }
+  .wrap{max-width:760px;margin:0 auto;}
+  .wrap.wide{max-width:1100px;}
+
+  /* ---------- header ---------- */
+  header{text-align:center; padding: 8px 0 6px;}
+  .eyebrow{font-size:15px; color:var(--leaf-deep); font-weight:700; letter-spacing:.06em;}
+  h1.title{font-family:'Jua', sans-serif; font-size:46px; margin:2px 0 0; color:var(--coral-deep); text-shadow: 2px 2px 0 rgba(255,255,255,.6);}
+  .author{font-size:15px;color:var(--ink-soft); margin-top:2px; font-weight:500;}
+  .bloom-row{display:flex; justify-content:center; gap:8px; margin:10px 0 18px;}
+
+  /* ---------- stanza card ---------- */
+  .stanza{background:var(--card); border-radius:28px; padding:22px 22px 18px; margin-bottom:22px; box-shadow:var(--shadow); border:3px solid #FFE7CF; position:relative;}
+  .stanza-tag{position:absolute; top:-16px; left:22px; background:var(--leaf); color:#fff; font-family:'Jua',sans-serif; font-size:18px; padding:6px 18px; border-radius:999px; box-shadow:0 4px 0 rgba(0,0,0,.08);}
+  .stanza-text{font-family:'Jua', sans-serif; font-size:28px; line-height:1.65; text-align:center; color:var(--ink); padding: 22px 4px 10px; white-space:pre-line;}
+  .best-badge{text-align:center; font-size:14px; color:var(--ink-soft); margin-bottom:6px; font-weight:500;}
+  .best-badge .hearts-mini{font-size:15px; letter-spacing:2px;}
+
+  .btn-row{display:flex; gap:12px; margin-top:8px;}
+  .big-btn{flex:1; border:none; border-radius:20px; padding:18px 10px; font-family:'Jua', sans-serif; font-size:20px; display:flex; align-items:center; justify-content:center; gap:8px; cursor:pointer; color:#fff; box-shadow:0 6px 0 rgba(0,0,0,.12); transition:transform .08s ease; user-select:none;}
+  .big-btn:active{transform:translateY(4px); box-shadow:0 2px 0 rgba(0,0,0,.12);}
+  .btn-listen{background:linear-gradient(180deg, #6FBE8E, var(--leaf-deep));}
+  .btn-record{background:linear-gradient(180deg, #FF8C97, var(--coral-deep));}
+  .btn-record.recording{background:linear-gradient(180deg, #FF4B5C, #C8222F); animation:pulse 1s infinite;}
+  .big-btn:disabled{opacity:.5; cursor:not-allowed; animation:none;}
+  @keyframes pulse{0%{box-shadow:0 6px 0 rgba(0,0,0,.12);}50%{box-shadow:0 6px 0 rgba(0,0,0,.12), 0 0 0 8px rgba(255,75,92,.25);}100%{box-shadow:0 6px 0 rgba(0,0,0,.12);}}
+  .status-line{text-align:center; font-size:15px; color:var(--ink-soft); min-height:20px; margin-top:10px; font-weight:500;}
+
+  /* ---------- result panel ---------- */
+  .result{margin-top:14px; border-radius:20px; padding:18px; background:var(--cream-deep); border:2px dashed #F0C58C; text-align:center; display:none;}
+  .result.show{display:block; animation:pop .25s ease;}
+  @keyframes pop{from{transform:scale(.9); opacity:0;} to{transform:scale(1); opacity:1;}}
+  .hearts-big{font-size:40px; letter-spacing:6px; margin:4px 0 10px;}
+  .heart-on{color:var(--coral-deep); text-shadow:0 2px 0 rgba(0,0,0,.06);}
+  .heart-off{color:#E9DCC9;}
+  .feedback-text{font-size:18px; line-height:1.55; color:var(--ink); margin:6px 0 14px; font-weight:500;}
+  .result-actions{display:flex; gap:10px; justify-content:center; flex-wrap:wrap;}
+  .pill-btn{border:none; border-radius:999px; padding:12px 20px; font-size:16px; font-weight:700; cursor:pointer; font-family:'Noto Sans KR', sans-serif;}
+  .pill-retry{background:var(--gold); color:#5A3E00; box-shadow:0 4px 0 rgba(0,0,0,.1);}
+  .pill-replay{background:#fff; color:var(--leaf-deep); border:2px solid var(--leaf);}
+
+  /* ---------- gate / home screens ---------- */
+  .center-screen{min-height:60vh; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:14px;}
+  .center-screen h2{font-family:'Jua', sans-serif; font-size:26px; color:var(--coral-deep); margin:0;}
+  .center-screen p{color:var(--ink-soft); font-size:16px; margin:0; max-width:340px;}
+  .pad{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:10px;}
+  .pad button{font-family:'Jua', sans-serif; font-size:22px; padding:16px 0; border-radius:16px; border:none; background:#fff; box-shadow:var(--shadow); color:var(--coral-deep); cursor:pointer;}
+  .home-links{display:flex; gap:10px; margin-top:18px; flex-wrap:wrap; justify-content:center;}
+  .home-links a{text-decoration:none; background:#fff; color:var(--leaf-deep); font-weight:700; padding:10px 18px; border-radius:14px; box-shadow:var(--shadow); font-size:14px;}
+  footer{text-align:center; color:var(--ink-soft); font-size:13px; margin-top:30px;}
+
+  /* ---------- teacher gate ---------- */
+  .gate{max-width:380px; margin:80px auto; background:#fff; border-radius:24px; padding:32px 28px; box-shadow:var(--shadow); text-align:center;}
+  .gate h2{font-family:'Jua',sans-serif; color:var(--coral-deep); margin-top:0;}
+  .gate input{width:100%; padding:14px; border-radius:14px; border:2px solid #F0DDBF; font-size:18px; text-align:center; margin:14px 0; outline:none;}
+  .gate input:focus{border-color:var(--coral);}
+  .gate button{width:100%; padding:14px; border-radius:14px; border:none; background:var(--coral-deep); color:#fff; font-size:17px; font-weight:700; cursor:pointer;}
+  .gate .err{color:var(--coral-deep); font-size:13px; min-height:18px; margin-top:6px;}
+
+  /* ---------- teacher dashboard ---------- */
+  h1.dash-title{font-family:'Jua', sans-serif; color:var(--coral-deep); font-size:32px; margin:0 0 4px;}
+  .sub{color:var(--ink-soft); font-size:14px; margin-bottom:24px;}
+  .toolbar{display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; flex-wrap:wrap; gap:10px;}
+  .refresh-btn, .logout-btn{border:none; border-radius:12px; padding:10px 16px; font-size:14px; font-weight:700; cursor:pointer;}
+  .refresh-btn{background:var(--leaf); color:#fff;}
+  .logout-btn{background:#fff; color:var(--ink-soft); border:1px solid #E5D6BF;}
+  .summary-cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; margin-bottom:22px;}
+  .summary-card{background:#fff; border-radius:16px; padding:14px 16px; box-shadow:0 6px 0 rgba(74,59,48,.06);}
+  .summary-card .num{font-family:'Jua',sans-serif; font-size:26px; color:var(--coral-deep);}
+  .summary-card .lbl{font-size:13px; color:var(--ink-soft);}
+  table{width:100%; border-collapse:collapse; background:#fff; border-radius:18px; overflow:hidden; box-shadow:0 8px 0 rgba(74,59,48,.06);}
+  th,td{padding:12px 10px; text-align:center; font-size:14px;}
+  thead th{background:var(--leaf); color:#fff; font-weight:700;}
+  tbody tr{border-bottom:1px solid #F3E8D4;}
+  tbody tr:hover{background:#FFFBF2;}
+  .hearts{letter-spacing:2px; color:var(--coral-deep);}
+  .student-id{font-family:'Jua',sans-serif; font-size:18px; color:var(--ink);}
+  .detail-btn, .danger-btn{border:none; border-radius:10px; padding:8px 12px; font-size:13px; cursor:pointer; font-weight:700;}
+  .detail-btn{background:var(--cream-deep); color:var(--leaf-deep);}
+  .danger-btn{background:#FFE3E3; color:#C8222F;}
+  .count-tag{font-size:12px; color:var(--ink-soft);}
+  .detail-row td{background:#FFFBF2; text-align:left;}
+  .detail-wrap{padding:6px 4px;}
+  .detail-cols{display:grid; grid-template-columns:1fr 1fr; gap:18px;}
+  @media (max-width:700px){ .detail-cols{grid-template-columns:1fr;} }
+  .detail-col h4{margin:0 0 8px; font-size:14px; color:var(--leaf-deep);}
+  .attempt{display:flex; align-items:center; gap:8px; padding:6px 8px; border-radius:10px; margin-bottom:4px; background:#fff;}
+  .attempt .bar{flex:1; height:10px; background:#F0E4CC; border-radius:6px; overflow:hidden;}
+  .attempt .bar > span{display:block; height:100%; background:linear-gradient(90deg,#FFB4BC,var(--coral-deep));}
+  .attempt time{font-size:11px; color:var(--ink-soft); width:78px; flex-shrink:0;}
+  .attempt .ah{font-size:13px; width:70px; flex-shrink:0; text-align:right; color:var(--coral-deep);}
+  .attempt .del{background:none; border:none; color:#C8222F; cursor:pointer; font-size:13px;}
+  .student-actions{margin-top:12px; text-align:right;}
+  .empty-msg{color:var(--ink-soft); font-size:13px; padding:8px 0;}
+  .loading-cell{text-align:center; padding:30px; color:var(--ink-soft);}
+
+  /* ---------- qr page ---------- */
+  .setup{max-width:560px; margin:0 auto 30px; background:#fff; padding:20px; border-radius:18px; box-shadow:var(--shadow);}
+  .setup label{font-size:14px; color:var(--ink-soft);}
+  .setup input{width:100%; padding:12px; border-radius:10px; border:2px solid #F0DDBF; font-size:15px; margin:8px 0 14px;}
+  .setup button{padding:12px 22px; border:none; border-radius:10px; background:var(--leaf); color:#fff; font-weight:700; cursor:pointer; font-size:15px;}
+  .qr-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:18px; max-width:1100px; margin:0 auto;}
+  .qr-card{background:#fff; border-radius:18px; padding:16px; text-align:center; box-shadow:0 6px 0 rgba(0,0,0,.06);}
+  .qr-card .num{font-family:'Jua',sans-serif; font-size:22px; color:var(--leaf-deep); margin-bottom:8px;}
+  .qr-card .qr{display:flex; justify-content:center; margin-bottom:8px;}
+  .qr-card .url{font-size:11px; color:var(--ink-soft); word-break:break-all;}
+  .printbar{text-align:center; margin:20px 0;}
+  .printbar button{padding:12px 26px; border:none; border-radius:10px; background:var(--gold); color:#5A3E00; font-weight:700; cursor:pointer; font-size:15px;}
+  @media print{ .setup, .printbar{display:none;} }
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+
+<script>
+/* =========================================================
+   설정
+   - Supabase anon key는 "공개되어도 되는" 키이며 RLS로 보호됩니다.
+   - ⚠️ Gemini API 키는 이 파일 어디에도 없습니다.
+     Supabase Edge Function(analyze-pronunciation)이 서버 secret으로
+     Gemini를 호출하고, 점수/피드백 결과만 돌려줍니다.
+   ========================================================= */
+const SB_URL = "https://pqjuvuflinnrpemqcafl.supabase.co";
+const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxanV2dWZsaW5ucnBlbXFjYWZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0NzAzMjQsImV4cCI6MjA5NDA0NjMyNH0.E4sJv1gM9TbWG-2o90aH8wJXZMLRY_uLQ9fgWARX1Ro";
+const SB_H = {"Content-Type":"application/json","apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY,"Prefer":"return=representation"};
+const ANALYZE_FN_URL = SB_URL + "/functions/v1/analyze-pronunciation";
+const SESSION_KEY = "poem_teacher_authed";
+
+async function sbGet(table, query) {
+  const res = await fetch(SB_URL + "/rest/v1/" + table + (query || ""), { headers: SB_H });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+async function sbInsert(table, row) {
+  const res = await fetch(SB_URL + "/rest/v1/" + table, { method: "POST", headers: SB_H, body: JSON.stringify(row) });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+async function sbDelete(table, query) {
+  const res = await fetch(SB_URL + "/rest/v1/" + table + (query || ""), { method: "DELETE", headers: SB_H });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json().catch(() => null);
+}
+
+const POEM = {
+  title: "인사",
+  author: "이문희",
+  stanzas: [
+    { label: "1연", text: "길을 가다\n아는 이 만나면\n\"안녕하세요!\"\n내가 먼저 인사하면" },
+    { label: "2연", text: "내 목소리 듣고\n길가에 채송화도\n\"안녕하세요!\"\n고개 숙여 인사하네." }
+  ]
+};
+
+/* =========================================================
+   라우팅: URL 파라미터로 화면을 구분합니다.
+   - ?student=1~12   → 학생용 연습 화면
+   - ?view=teacher   → 교사용 대시보드 (비밀번호 보호)
+   - ?view=qr        → QR코드 생성/인쇄 화면
+   - 그 외           → 홈 화면
+   ========================================================= */
+window.addEventListener("DOMContentLoaded", route);
+
+function route(){
+  const params = new URLSearchParams(window.location.search);
+  const studentParam = params.get("student");
+  const view = params.get("view");
+
+  if(studentParam && !isNaN(studentParam) && studentParam >= 1 && studentParam <= 12){
+    document.getElementById("app").className = "wrap";
+    renderStudent(parseInt(studentParam, 10));
+  }else if(view === "teacher"){
+    document.getElementById("app").className = "wrap wide";
+    renderTeacherGate();
+  }else if(view === "qr"){
+    document.getElementById("app").className = "wrap wide";
+    renderQrPage();
+  }else{
+    document.getElementById("app").className = "wrap";
+    renderHome();
+  }
+}
+
+function renderHome(){
+  const app = document.getElementById("app");
+  app.innerHTML = `
+    <div class="center-screen">
+      <h2>🌼 인사 - 발음 연습</h2>
+      <p>학생은 선생님이 보여주신 QR코드로 들어오면<br>번호가 자동으로 입력돼요.<br>지금은 번호를 눌러서 들어가볼까요?</p>
+      <div class="pad" id="pad"></div>
+      <div class="home-links">
+        <a href="?view=teacher">🔒 교사용 대시보드</a>
+        <a href="?view=qr">🖨 학생 QR코드 만들기</a>
+      </div>
+    </div>`;
+  const pad = document.getElementById("pad");
+  for(let i=1;i<=12;i++){
+    const b = document.createElement("button");
+    b.textContent = i;
+    b.onclick = () => { window.location.href = "?student=" + i; };
+    pad.appendChild(b);
+  }
+}
+
+/* =========================================================
+   학생용 화면
+   ========================================================= */
+let studentId = null;
+let mediaRecorder = null;
+let recordedChunks = [];
+let lastFeedbackText = "";
+
+function renderStudent(id){
+  studentId = id;
+  const app = document.getElementById("app");
+  app.innerHTML = `
+    <header>
+      <div class="eyebrow">${studentId}번 친구의 발음 연습 🌷</div>
+      <h1 class="title">${POEM.title}</h1>
+      <div class="author">지은이: ${POEM.author}</div>
+    </header>
+    <div class="bloom-row">${flowerSvg()}${flowerSvg()}${flowerSvg()}</div>
+    <div id="stanzaList"></div>
+    <footer>잘 안 들리면 선생님께 도움을 요청해요 🙋</footer>
+  `;
+  const list = document.getElementById("stanzaList");
+  POEM.stanzas.forEach((st, idx) => list.appendChild(buildStanzaCard(st, idx)));
+  loadBestScores();
+}
+
+function flowerSvg(){
+  return `<svg width="30" height="30" viewBox="0 0 40 40" fill="none">
+    <circle cx="20" cy="20" r="5" fill="#FFC93C"/>
+    <g fill="#FF8C97">
+      <ellipse cx="20" cy="8" rx="6" ry="9"/><ellipse cx="20" cy="32" rx="6" ry="9"/>
+      <ellipse cx="8" cy="20" rx="9" ry="6"/><ellipse cx="32" cy="20" rx="9" ry="6"/>
+    </g>
+  </svg>`;
+}
+
+function buildStanzaCard(stanza, idx){
+  const card = document.createElement("div");
+  card.className = "stanza";
+  card.id = `stanza-${idx}`;
+  card.innerHTML = `
+    <div class="stanza-tag">${stanza.label}</div>
+    <div class="best-badge" id="best-${idx}">아직 연습 전이에요</div>
+    <div class="stanza-text">${escapeHtml(stanza.text)}</div>
+    <div class="btn-row">
+      <button class="big-btn btn-listen" onclick="playListen(${idx})">🔊 듣기</button>
+      <button class="big-btn btn-record" id="recBtn-${idx}" onclick="toggleRecord(${idx})">🎙 따라읽기</button>
+    </div>
+    <div class="status-line" id="status-${idx}"></div>
+    <div class="result" id="result-${idx}">
+      <div class="hearts-big" id="heartsBig-${idx}"></div>
+      <div class="feedback-text" id="feedbackText-${idx}"></div>
+      <div class="result-actions">
+        <button class="pill-btn pill-replay" onclick="replayFeedback(${idx})">🔊 다시 듣기</button>
+        <button class="pill-btn pill-retry" onclick="retry(${idx})">🔁 다시 도전하기</button>
+      </div>
+    </div>
+  `;
+  return card;
+}
+
+function escapeHtml(s){
+  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\n/g,"<br>");
+}
+
+function speakKorean(text, onend){
+  try{
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = "ko-KR"; utter.rate = 0.88; utter.pitch = 1.05;
+    const voices = window.speechSynthesis.getVoices();
+    const krVoice = voices.find(v => v.lang && v.lang.toLowerCase().startsWith("ko"));
+    if(krVoice) utter.voice = krVoice;
+    if(onend) utter.onend = onend;
+    window.speechSynthesis.speak(utter);
+  }catch(e){ console.error("TTS error", e); if(onend) onend(); }
+}
+
+function playListen(idx){
+  const text = POEM.stanzas[idx].text.replace(/\n/g, ". ");
+  setStatus(idx, "🔊 잘 들어보세요...");
+  speakKorean(text, () => setStatus(idx, ""));
+}
+function replayFeedback(idx){ speakKorean(lastFeedbackText); }
+function setStatus(idx, msg){ const el = document.getElementById(`status-${idx}`); if(el) el.textContent = msg; }
+
+async function toggleRecord(idx){
+  if(mediaRecorder && mediaRecorder.state === "recording"){ mediaRecorder.stop(); return; }
+  try{
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    recordedChunks = [];
+    const mimeType = pickMimeType();
+    mediaRecorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+    mediaRecorder.ondataavailable = (e) => { if(e.data && e.data.size>0) recordedChunks.push(e.data); };
+    mediaRecorder.onstop = () => {
+      stream.getTracks().forEach(t => t.stop());
+      const blob = new Blob(recordedChunks, { type: mediaRecorder.mimeType || "audio/webm" });
+      handleRecordingDone(idx, blob);
+    };
+    mediaRecorder.start();
+    setRecordingUI(idx, true);
+    setStatus(idx, "🔴 녹음 중... 시처럼 천천히 읽어보세요!");
+  }catch(err){
+    console.error(err);
+    setStatus(idx, "마이크를 사용할 수 없어요. 선생님께 권한을 확인해 주세요.");
+  }
+}
+
+function pickMimeType(){
+  const candidates = ["audio/webm;codecs=opus","audio/webm","audio/ogg;codecs=opus","audio/mp4"];
+  for(const c of candidates){
+    if(window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(c)) return c;
+  }
+  return "";
+}
+
+function setRecordingUI(idx, isRecording){
+  const btn = document.getElementById(`recBtn-${idx}`);
+  if(isRecording){ btn.classList.add("recording"); btn.textContent = "⏹ 녹음 끝내기"; }
+  else{ btn.classList.remove("recording"); btn.textContent = "🎙 따라읽기"; }
+}
+
+async function handleRecordingDone(idx, blob){
+  setRecordingUI(idx, false);
+  setStatus(idx, "🤖 AI가 발음을 듣고 있어요...");
+  document.getElementById(`recBtn-${idx}`).disabled = true;
+  try{
+    const base64 = await blobToBase64(blob);
+    const mimeType = (blob.type || "audio/webm").split(";")[0];
+    const analysis = await analyzePronunciation(base64, mimeType, POEM.stanzas[idx].text);
+    showResult(idx, analysis.score, analysis.feedback);
+    await saveRecord(idx, analysis.score, analysis.feedback);
+    loadBestScores();
+  }catch(err){
+    console.error(err);
+    setStatus(idx, "분석 중 문제가 생겼어요. 다시 시도해 주세요.");
+  }finally{
+    document.getElementById(`recBtn-${idx}`).disabled = false;
+    mediaRecorder = null;
+  }
+}
+
+function blobToBase64(blob){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result.split(",")[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+async function analyzePronunciation(base64Audio, mimeType, stanzaText){
+  const res = await fetch(ANALYZE_FN_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "apikey": SB_KEY, "Authorization": "Bearer " + SB_KEY },
+    body: JSON.stringify({ stanzaText, audioBase64: base64Audio, mimeType })
+  });
+  const data = await res.json();
+  if(!res.ok || data.error){ throw new Error(data.error || "분석 서버 호출에 실패했어요."); }
+  let score = parseInt(data.score, 10);
+  if(isNaN(score)) score = 3;
+  score = Math.max(1, Math.min(5, score));
+  const feedback = (data.feedback || "잘 읽었어요. 다시 한번 천천히 읽어볼까요?").toString();
+  return { score, feedback };
+}
+
+function showResult(idx, score, feedback){
+  setStatus(idx, "");
+  const result = document.getElementById(`result-${idx}`);
+  result.classList.add("show");
+  document.getElementById(`heartsBig-${idx}`).innerHTML = heartsHtml(score);
+  document.getElementById(`feedbackText-${idx}`).textContent = feedback;
+  lastFeedbackText = feedback;
+  const intro = score === 5 ? "최고예요! " : score >= 3 ? "잘했어요! " : "괜찮아요, 천천히! ";
+  speakKorean(intro + feedback);
+}
+
+function heartsHtml(score){
+  let html = "";
+  for(let i=1;i<=5;i++) html += `<span class="${i<=score ? "heart-on":"heart-off"}">${i<=score ? "♥":"♡"}</span>`;
+  return html;
+}
+
+function retry(idx){
+  document.getElementById(`result-${idx}`).classList.remove("show");
+  setStatus(idx, "");
+}
+
+async function saveRecord(stanzaIdx, score, feedback){
+  const stanzaNum = stanzaIdx + 1;
+  try{
+    await sbInsert("practice_records", { student_id: studentId, stanza: stanzaNum, score: score, feedback: feedback });
+  }catch(e){ console.error("저장 실패", e); }
+}
+
+async function loadBestScores(){
+  for(let i=0;i<POEM.stanzas.length;i++){
+    const stanzaNum = i+1;
+    try{
+      const rows = await sbGet("practice_records",
+        `?student_id=eq.${studentId}&stanza=eq.${stanzaNum}&select=score&order=score.desc&limit=1`);
+      const el = document.getElementById(`best-${i}`);
+      if(!el) continue;
+      if(rows && rows.length>0){
+        el.innerHTML = `최고 기록 <span class="hearts-mini">${heartsHtml(rows[0].score)}</span>`;
+      }else{
+        el.textContent = "아직 연습 전이에요";
+      }
+    }catch(e){ console.error(e); }
+  }
+}
+
+/* =========================================================
+   교사용 대시보드
+   ========================================================= */
+let allRecords = [];
+
+function renderTeacherGate(){
+  if(sessionStorage.getItem(SESSION_KEY) === "1"){ renderDashboard(); return; }
+  const app = document.getElementById("app");
+  app.innerHTML = `
+    <div class="gate">
+      <h2>🔒 교사 로그인</h2>
+      <p style="color:var(--ink-soft); font-size:14px;">비밀번호를 입력해 주세요.</p>
+      <input type="password" id="pwInput" placeholder="비밀번호" />
+      <button onclick="tryLogin()">들어가기</button>
+      <div class="err" id="loginErr"></div>
+    </div>`;
+  document.getElementById("pwInput").addEventListener("keydown", e => { if(e.key === "Enter") tryLogin(); });
+}
+
+async function tryLogin(){
+  const pw = document.getElementById("pwInput").value;
+  const errEl = document.getElementById("loginErr");
+  errEl.textContent = "확인 중...";
+  try{
+    const rows = await sbGet("settings", "?key=eq.teacher_password&select=value");
+    if(!rows || rows.length === 0){ errEl.textContent = "설정을 불러올 수 없어요. (settings.teacher_password)"; return; }
+    if(pw === rows[0].value){
+      sessionStorage.setItem(SESSION_KEY, "1");
+      renderDashboard();
+    }else{ errEl.textContent = "비밀번호가 올바르지 않아요."; }
+  }catch(e){ console.error(e); errEl.textContent = "오류가 발생했어요."; }
+}
+
+function logoutTeacher(){ sessionStorage.removeItem(SESSION_KEY); window.location.href = "?view=teacher"; }
+
+async function renderDashboard(){
+  const app = document.getElementById("app");
+  app.innerHTML = `
+    <h1 class="dash-title">🌷 발음 연습 대시보드</h1>
+    <div class="sub">학생 1~12번의 연습 기록과 성장 모습을 한눈에 확인해요.</div>
+    <div class="toolbar">
+      <div class="summary-cards" id="summaryCards"></div>
+      <div>
+        <button class="refresh-btn" onclick="loadAll()">⟳ 새로고침</button>
+        <button class="logout-btn" onclick="logoutTeacher()">로그아웃</button>
+      </div>
+    </div>
+    <table>
+      <thead><tr><th>번호</th><th>1연 평균</th><th>1연 횟수</th><th>2연 평균</th><th>2연 횟수</th><th>전체 평균</th><th>상세보기</th></tr></thead>
+      <tbody id="tbody"><tr><td colspan="7" class="loading-cell">불러오는 중...</td></tr></tbody>
+    </table>
+  `;
+  await loadAll();
+}
+
+async function loadAll(){
+  const tbody = document.getElementById("tbody");
+  tbody.innerHTML = `<tr><td colspan="7" class="loading-cell">불러오는 중...</td></tr>`;
+  try{
+    allRecords = await sbGet("practice_records", "?select=*&order=created_at.asc");
+  }catch(e){
+    tbody.innerHTML = `<tr><td colspan="7" class="loading-cell">불러오기 실패: ${e.message}</td></tr>`;
+    return;
+  }
+  renderSummary();
+  renderTable();
+}
+
+function renderSummary(){
+  const totalAttempts = allRecords.length;
+  const activeStudents = new Set(allRecords.map(r => r.student_id)).size;
+  const overallAvg = totalAttempts ? (allRecords.reduce((s,r)=>s+r.score,0)/totalAttempts) : 0;
+  const fiveHeartCount = allRecords.filter(r => r.score === 5).length;
+  document.getElementById("summaryCards").innerHTML = `
+    <div class="summary-card"><div class="num">${totalAttempts}</div><div class="lbl">전체 연습 횟수</div></div>
+    <div class="summary-card"><div class="num">${activeStudents}/12</div><div class="lbl">참여 학생 수</div></div>
+    <div class="summary-card"><div class="num">${overallAvg.toFixed(1)}</div><div class="lbl">전체 평균 하트</div></div>
+    <div class="summary-card"><div class="num">${fiveHeartCount}</div><div class="lbl">만점(♥5) 달성 횟수</div></div>
+  `;
+}
+
+function avg(arr){ return arr.length ? arr.reduce((s,v)=>s+v,0)/arr.length : null; }
+
+function renderTable(){
+  const tbody = document.getElementById("tbody");
+  tbody.innerHTML = "";
+  for(let id=1; id<=12; id++){
+    const recs = allRecords.filter(r => r.student_id === id);
+    const s1 = recs.filter(r => r.stanza === 1).map(r => r.score);
+    const s2 = recs.filter(r => r.stanza === 2).map(r => r.score);
+    const all = recs.map(r => r.score);
+    const a1 = avg(s1), a2 = avg(s2), aAll = avg(all);
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td class="student-id">${id}번</td>
+      <td>${a1 !== null ? heartsHtmlT(Math.round(a1)) + ` <span class="count-tag">(${a1.toFixed(1)})</span>` : "-"}</td>
+      <td>${s1.length}</td>
+      <td>${a2 !== null ? heartsHtmlT(Math.round(a2)) + ` <span class="count-tag">(${a2.toFixed(1)})</span>` : "-"}</td>
+      <td>${s2.length}</td>
+      <td>${aAll !== null ? heartsHtmlT(Math.round(aAll)) + ` <span class="count-tag">(${aAll.toFixed(1)})</span>` : "-"}</td>
+      <td><button class="detail-btn" onclick="toggleDetail(${id})">자세히</button></td>
+    `;
+    tbody.appendChild(tr);
+
+    const detailTr = document.createElement("tr");
+    detailTr.className = "detail-row";
+    detailTr.id = `detail-${id}`;
+    detailTr.style.display = "none";
+    detailTr.innerHTML = `<td colspan="7"><div class="detail-wrap">${buildDetailHtml(id, recs)}</div></td>`;
+    tbody.appendChild(detailTr);
+  }
+}
+
+function buildDetailHtml(id, recs){
+  const s1 = recs.filter(r => r.stanza === 1);
+  const s2 = recs.filter(r => r.stanza === 2);
+  const col = (title, list) => {
+    if(list.length === 0) return `<div class="detail-col"><h4>${title}</h4><div class="empty-msg">아직 연습 기록이 없어요.</div></div>`;
+    const items = list.map(r => `
+      <div class="attempt">
+        <time>${formatTime(r.created_at)}</time>
+        <div class="bar"><span style="width:${r.score*20}%"></span></div>
+        <div class="ah">${heartsHtmlT(r.score)}</div>
+        <button class="del" onclick="deleteRecord(${r.id}, ${id})">삭제</button>
+      </div>
+      <div style="font-size:12px; color:var(--ink-soft); margin:-2px 0 6px 86px;">${escapeHtmlT(r.feedback || "")}</div>
+    `).join("");
+    return `<div class="detail-col"><h4>${title}</h4>${items}</div>`;
+  };
+  return `
+    <div class="detail-cols">${col("1연 기록", s1)}${col("2연 기록", s2)}</div>
+    <div class="student-actions"><button class="danger-btn" onclick="deleteAllForStudent(${id})">🗑 ${id}번 전체 기록 삭제</button></div>
+  `;
+}
+
+function toggleDetail(id){
+  const row = document.getElementById(`detail-${id}`);
+  row.style.display = row.style.display === "none" ? "table-row" : "none";
+}
+
+function heartsHtmlT(score){
+  let html = "";
+  for(let i=1;i<=5;i++) html += `<span class="hearts">${i<=score?"♥":'<span class="heart-off">♡</span>'}</span>`;
+  return html;
+}
+function formatTime(iso){
+  const d = new Date(iso);
+  const mm = String(d.getMonth()+1).padStart(2,"0");
+  const dd = String(d.getDate()).padStart(2,"0");
+  const hh = String(d.getHours()).padStart(2,"0");
+  const mi = String(d.getMinutes()).padStart(2,"0");
+  return `${mm}/${dd} ${hh}:${mi}`;
+}
+function escapeHtmlT(s){ return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+async function deleteRecord(recordId, studentIdArg){
+  if(!confirm("이 기록을 삭제할까요?")) return;
+  try{ await sbDelete("practice_records", `?id=eq.${recordId}`); }
+  catch(e){ alert("삭제 실패: " + e.message); return; }
+  await loadAll();
+  const row = document.getElementById(`detail-${studentIdArg}`);
+  if(row) row.style.display = "table-row";
+}
+
+async function deleteAllForStudent(studentIdArg){
+  if(!confirm(`${studentIdArg}번 학생의 모든 연습 기록을 삭제할까요? 되돌릴 수 없어요.`)) return;
+  try{ await sbDelete("practice_records", `?student_id=eq.${studentIdArg}`); }
+  catch(e){ alert("삭제 실패: " + e.message); return; }
+  await loadAll();
+}
+
+/* =========================================================
+   QR코드 생성 화면
+   ========================================================= */
+function renderQrPage(){
+  const app = document.getElementById("app");
+  const here = window.location.origin + window.location.pathname;
+  app.innerHTML = `
+    <h1 class="dash-title">🌷 학생용 QR코드</h1>
+    <div class="setup">
+      <label>학생용 주소 기본값이 자동으로 채워져 있어요. 필요하면 수정하세요.</label>
+      <input id="baseUrl" value="${here}" />
+      <button onclick="generateQrs()">QR코드 12개 만들기</button>
+    </div>
+    <div class="printbar"><button onclick="window.print()">🖨 인쇄하기</button></div>
+    <div class="qr-grid" id="qrGrid"></div>
+  `;
+  generateQrs();
+}
+
+function generateQrs(){
+  let base = document.getElementById("baseUrl").value.trim();
+  if(!base){ alert("주소를 입력해 주세요."); return; }
+  const grid = document.getElementById("qrGrid");
+  grid.innerHTML = "";
+  for(let i=1;i<=12;i++){
+    const sep = base.includes("?") ? "&" : "?";
+    const url = `${base}${sep}student=${i}`;
+    const card = document.createElement("div");
+    card.className = "qr-card";
+    card.innerHTML = `<div class="num">${i}번</div><div class="qr" id="qr-${i}"></div><div class="url">${url}</div>`;
+    grid.appendChild(card);
+    new QRCode(document.getElementById(`qr-${i}`), { text: url, width: 140, height: 140 });
+  }
+}
+</script>
+</body>
+</html>
