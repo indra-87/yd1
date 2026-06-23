@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no" />
+<title>인사 - 발음 연습</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root{
+    --cream:#FFF8EC; --cream-deep:#FBEFD9; --coral:#FF6B7A; --coral-deep:#E84F62;
+    --leaf:#5FA777; --leaf-deep:#3F8159; --ink:#4A3B30; --ink-soft:#8A7A6B;
+    --card:#FFFFFF; --gold:#FFC93C; --shadow:0 10px 0 rgba(74,59,48,0.08);
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color: transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: radial-gradient(circle at 10% 0%, var(--cream-deep), var(--cream) 60%);
+    font-family:'Noto Sans KR', sans-serif; color:var(--ink); min-height:100vh;
+    padding: 18px 16px 60px; overscroll-behavior:none;
+  }
+  .wrap{max-width:760px;margin:0 auto;}
+  .wrap.wide{max-width:1100px;}
+
+  /* ---------- header ---------- */
+  header{text-align:center; padding: 8px 0 6px;}
+  .eyebrow{font-size:15px; color:var(--leaf-deep); font-weight:700; letter-spacing:.06em;}
+  h1.title{font-family:'Jua', sans-serif; font-size:46px; margin:2px 0 0; color:var(--coral-deep); text-shadow: 2px 2px 0 rgba(255,255,255,.6);}
+  .author{font-size:15px;color:var(--ink-soft); margin-top:2px; font-weight:500;}
+  .bloom-row{display:flex; justify-content:center; gap:8px; margin:10px 0 18px;}
+
+  /* ---------- stanza card ---------- */
+  .stanza{background:var(--card); border-radius:28px; padding:22px 22px 18px; margin-bottom:22px; box-shadow:var(--shadow); border:3px solid #FFE7CF; position:relative;}
+  .stanza-tag{position:absolute; top:-16px; left:22px; background:var(--leaf); color:#fff; font-family:'Jua',sans-serif; font-size:18px; padding:6px 18px; border-radius:999px; box-shadow:0 4px 0 rgba(0,0,0,.08);}
+  .stanza-text{font-family:'Jua', sans-serif; font-size:28px; line-height:1.65; text-align:center; color:var(--ink); padding: 22px 4px 10px; white-space:pre-line;}
+  .best-badge{text-align:center; font-size:14px; color:var(--ink-soft); margin-bottom:6px; font-weight:500;}
+  .best-badge .hearts-mini{font-size:15px; letter-spacing:2px;}
+
+  .btn-row{display:flex; gap:12px; margin-top:8px;}
+  .big-btn{flex:1; border:none; border-radius:20px; padding:18px 10px; font-family:'Jua', sans-serif; font-size:20px; display:flex; align-items:center; justify-content:center; gap:8px; cursor:pointer; color:#fff; box-shadow:0 6px 0 rgba(0,0,0,.12); transition:transform .08s ease; user-select:none;}
+  .big-btn:active{transform:translateY(4px); box-shadow:0 2px 0 rgba(0,0,0,.12);}
+  .btn-listen{background:linear-gradient(180deg, #6FBE8E, var(--leaf-deep));}
+  .btn-record{background:linear-gradient(180deg, #FF8C97, var(--coral-deep));}
+  .btn-record.recording{background:linear-gradient(180deg, #FF4B5C, #C8222F); animation:pulse 1s infinite;}
+  .big-btn:disabled{opacity:.5; cursor:not-allowed; animation:none;}
+  @keyframes pulse{0%{box-shadow:0 6px 0 rgba(0,0,0,.12);}50%{box-shadow:0 6px 0 rgba(0,0,0,.12), 0 0 0 8px rgba(255,75,92,.25);}100%{box-shadow:0 6px 0 rgba(0,0,0,.12);}}
+  .status-line{text-align:center; font-size:15px; color:var(--ink-soft); min-height:20px; margin-top:10px; font-weight:500;}
+
+  /* ---------- result panel ---------- */
+  .result{margin-top:14px; border-radius:20px; padding:18px; background:var(--cream-deep); border:2px dashed #F0C58C; text-align:center; display:none;}
+  .result.show{display:block; animation:pop .25s ease;}
+  @keyframes pop{from{transform:scale(.9); opacity:0;} to{transform:scale(1); opacity:1;}}
+  .hearts-big{font-size:40px; letter-spacing:6px; margin:4px 0 10px;}
+  .heart-on{color:var(--coral-deep); text-shadow:0 2px 0 rgba(0,0,0,.06);}
+  .heart-off{color:#E9DCC9;}
+  .feedback-text{font-size:18px; line-height:1.55; color:var(--ink); margin:6px 0 14px; font-weight:500;}
+  .result-actions{display:flex; gap:10px; justify-content:center; flex-wrap:wrap;}
+  .pill-btn{border:none; border-radius:999px; padding:12px 20px; font-size:16px; font-weight:700; cursor:pointer; font-family:'Noto Sans KR', sans-serif;}
+  .pill-retry{background:var(--gold); color:#5A3E00; box-shadow:0 4px 0 rgba(0,0,0,.1);}
+  .pill-replay{background:#fff; color:var(--leaf-deep); border:2px solid var(--leaf);}
+
+  /* ---------- gate / home screens ---------- */
+  .center-screen{min-height:60vh; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:14px;}
+  .center-screen h2{font-family:'Jua', sans-serif; font-size:26px; color:var(--coral-deep); margin:0;}
+  .center-screen p{color:var(--ink-soft); font-size:16px; margin:0; max-width:340px;}
+  .pad{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:10px;}
+  .pad button{font-family:'Jua', sans-serif; font-size:22px; padding:16px 0; border-radius:16px; border:none; background:#fff; box-shadow:var(--shadow); color:var(--coral-deep); cursor:pointer;}
+  .home-links{display:flex; gap:10px; margin-top:18px; flex-wrap:wrap; justify-content:center;}
+  .home-links a{text-decoration:none; background:#fff; color:var(--leaf-deep); font-weight:700; padding:10px 18px; border-radius:14px; box-shadow:var(--shadow); font-size:14px;}
+  footer{text-align:center; color:var(--ink-soft); font-size:13px; margin-top:30px;}
+
+  /* ---------- teacher gate ---------- */
+  .gate{max-width:380px; margin:80px auto; background:#fff; border-radius:24px; padding:32px 28px; box-shadow:var(--shadow); text-align:center;}
+  .gate h2{font-family:'Jua',sans-serif; color:var(--coral-deep); margin-top:0;}
+  .gate input{width:100%; padding:14px; border-radius:14px; border:2px solid #F0DDBF; font-size:18px; text-align:center; margin:14px 0; outline:none;}
+  .gate input:focus{border-color:var(--coral);}
+  .gate button{width:100%; padding:14px; border-radius:14px; border:none; background:var(--coral-deep); color:#fff; font-size:17px; font-weight:700; cursor:pointer;}
+  .gate .err{color:var(--coral-deep); font-size:13px; min-height:18px; margin-top:6px;}
+
+  /* ---------- teacher dashboard ---------- */
+  h1.dash-title{font-family:'Jua', sans-serif; color:var(--coral-deep); font-size:32px; margin:0 0 4px;}
+  .sub{color:var(--ink-soft); font-size:14px; margin-bottom:24px;}
+  .toolbar{display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; flex-wrap:wrap; gap:10px;}
+  .refresh-btn, .logout-btn{border:none; border-radius:12px; padding:10px 16px; font-size:14px; font-weight:700; cursor:pointer;}
+  .refresh-btn{background:var(--leaf); color:#fff;}
+  .logout-btn{background:#fff; color:var(--ink-soft); border:1px solid #E5D6BF;}
+  .summary-cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; margin-bottom:22px;}
+  .summary-card{background:#fff; border-radius:16px; padding:14px 16px; box-shadow:0 6px 0 rgba(74,59,48,.06);}
+  .summary-card .num{font-family:'Jua',sans-serif; font-size:26px; color:var(--coral-deep);}
+  .summary-card .lbl{font-size:13px; color:var(--ink-soft);}
+  table{width:100%; border-collapse:collapse; background:#fff; border-radius:18px; overflow:hidden; box-shadow:0 8px 0 rgba(74,59,48,.06);}
+  th,td{padding:12px 10px; text-align:center; font-size:14px;}
+  thead th{background:var(--leaf); color:#fff; font-weight:700;}
+  tbody tr{border-bottom:1px solid #F3E8D4;}
+  tbody tr:hover{background:#FFFBF2;}
+  .hearts{letter-spacing:2px; color:var(--coral-deep);}
+  .student-id{font-family:'Jua',sans-serif; font-size:18px; color:var(--ink);}
+  .detail-btn, .danger-btn{border:none; border-radius:10px; padding:8px 12px; font-size:13px; cursor:pointer; font-weight:700;}
+  .detail-btn{background:var(--cream-deep); color:var(--leaf-deep);}
+  .danger-btn{background:#FFE3E3; color:#C8222F;}
+  .count-tag{font-size:12px; color:var(--ink-soft);}
+  .detail-row td{background:#FFFBF2; text-align:left;}
+  .detail-wrap{padding:6px 4px;}
+  .detail-cols{display:grid; grid-template-columns:1fr 1fr; gap:18px;}
+  @media (max-width:700px){ .detail-cols{grid-template-columns:1fr;} }
+  .detail-col h4{margin:0 0 8px; font-size:14px; color:var(--leaf-deep);}
+  .attempt{display:flex; align-items:center; gap:8px; padding:6px 8px; border-radius:10px; margin-bottom:4px; background:#fff;}
+  .attempt .bar{flex:1; height:10px; background:#F0E4CC; border-radius:6px; overflow:hidden;}
+  .attempt .bar > span{display:block; height:100%; background:linear-gradient(90deg,#FFB4BC,var(--coral-deep));}
+  .attempt time{font-size:11px; color:var(--ink-soft); width:78px; flex-shrink:0;}
+  .attempt .ah{font-size:13px; width:70px; flex-shrink:0; text-align:right; color:var(--coral-deep);}
+  .attempt .del{background:none; border:none; color:#C8222F; cursor:pointer; font-size:13px;}
+  .student-actions{margin-top:12px; text-align:right;}
+  .empty-msg{color:var(--ink-soft); font-size:13px; padding:8px 0;}
+  .loading-cell{text-align:center; padding:30px; color:var(--ink-soft);}
+
+  /* ---------- qr page ---------- */
+  .setup{max-width:560px; margin:0 auto 30px; background:#fff; padding:20px; border-radius:18px; box-shadow:var(--shadow);}
+  .setup label{font-size:14px; color:var(--ink-soft);}
+  .setup input{width:100%; padding:12px; border-radius:10px; border:2px solid #F0DDBF; font-size:15px; margin:8px 0 14px;}
+  .setup button{padding:12px 22px; border:none; border-radius:10px; background:var(--leaf); color:#fff; font-weight:700; cursor:pointer; font-size:15px;}
+  .qr-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:18px; max-width:1100px; margin:0 auto;}
+  .qr-card{background:#fff; border-radius:18px; padding:16px; text-align:center; box-shadow:0 6px 0 rgba(0,0,0,.06);}
+  .qr-card .num{font-family:'Jua',sans-serif; font-size:22px; color:var(--leaf-deep); margin-bottom:8px;}
+  .qr-card .qr{display:flex; justify-content:center; margin-bottom:8px;}
+  .qr-card .url{font-size:11px; color:var(--ink-soft); word-break:break-all;}
+  .printbar{text-align:center; margin:20px 0;}
+  .printbar button{padding:12px 26px; border:none; border-radius:10px; background:var(--gold); color:#5A3E00; font-weight:700; cursor:pointer; font-size:15px;}
+  @media print{ .setup, .printbar{display:none;} }
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+
+<script>
+/* =========================================================
+   설정
+   - Supabase anon key는 "공개되어도 되는" 키이며 RLS로 보호됩니다.
+   - ⚠️ Gemini API 키는 이 파일 어디에도 없습니다.
+     Supabase Edge Function(analyze-pronunciation)이 서버 secret으로
+     Gemini를 호출하고, 점수/피드백 결과만 돌려줍니다.
+   ========================================================= */
+const SB_URL = "https://pqjuvuflinnrpemqcafl.supabase.co";
+const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxanV2dWZsaW5ucnBlbXFjYWZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0NzAzMjQsImV4cCI6MjA5NDA0NjMyNH0.E4sJv1gM9TbWG-2o90aH8wJXZMLRY_uLQ9fgWARX1Ro";
+const SB_H = {"Content-Type":"application/json","apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY,"Prefer":"return=representation"};
+const SESSION_KEY = "poem_teacher_authed";
+
+/* =========================================================
+   Gemini API 직접 호출 설정
+   - Edge Function 대신, IB Grow 앱과 동일하게 Supabase의
+     settings 테이블(key="gemini_api_key")에서 키를 불러와
+     브라우저에서 Gemini를 바로 호출합니다.
+   - 같은 Supabase 프로젝트를 쓰는 다른 앱에서 이미 키를
+     등록해 두었다면 별도 설정 없이 그대로 재사용됩니다.
+   ========================================================= */
+let GEMINI_API_KEY = "";
+function getGeminiUrl(){
+  return "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=" + GEMINI_API_KEY;
+}
+async function loadApiKey(){
+  try{
+    const rows = await sbGet("settings", "?key=eq.gemini_api_key");
+    if(rows && rows.length > 0 && rows[0].value) GEMINI_API_KEY = rows[0].value;
+  }catch(e){ console.warn("API 키 로드 실패", e); }
+}
+
+async function sbGet(table, query) {
+  const res = await fetch(SB_URL + "/rest/v1/" + table + (query || ""), { headers: SB_H });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+async function sbInsert(table, row) {
+  const res = await fetch(SB_URL + "/rest/v1/" + table, { method: "POST", headers: SB_H, body: JSON.stringify(row) });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+async function sbDelete(table, query) {
+  const res = await fetch(SB_URL + "/rest/v1/" + table + (query || ""), { method: "DELETE", headers: SB_H });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json().catch(() => null);
+}
+
+const POEM = {
+  title: "인사",
+  author: "이문희",
+  stanzas: [
+    { label: "1연", text: "아침에 눈을 뜨면\n엄마한테 \"안녕?\"\n아빠한테 \"안녕?\"", audio: "audio/stanza1.wav" },
+    { label: "2연", text: "인사를 자꾸자꾸 하니까\n내 입에서 하얀 나비가 날아가는 것 같다.\n내 입에서 예쁜 새가 날아가는 것 같다.", audio: "audio/stanza2.wav" }
+  ]
+};
+
+/* =========================================================
+   학생 ID 목록
+   - 1~12: 실제 학생
+   - 99  : 테스트용 계정 (선생님/관리자가 동작 확인용으로 사용)
+   ========================================================= */
+const STUDENT_IDS = [1,2,3,4,5,6,7,8,9,10,11,12,99];
+const TEST_STUDENT_ID = 99;
+function isValidStudentId(id){ return STUDENT_IDS.includes(id); }
+function studentLabel(id){ return id === TEST_STUDENT_ID ? "테스트" : `${id}번`; }
+
+/* =========================================================
+   라우팅: URL 파라미터로 화면을 구분합니다.
+   - ?student=1~12 (테스트 계정은 99)   → 학생용 연습 화면
+   - ?view=teacher   → 교사용 대시보드 (비밀번호 보호)
+   - ?view=qr        → QR코드 생성/인쇄 화면
+   - 그 외           → 홈 화면
+   ========================================================= */
+window.addEventListener("DOMContentLoaded", () => { loadApiKey(); route(); });
+
+function route(){
+  const params = new URLSearchParams(window.location.search);
+  const studentParam = params.get("student");
+  const view = params.get("view");
+
+  if(studentParam && !isNaN(studentParam) && isValidStudentId(parseInt(studentParam, 10))){
+    document.getElementById("app").className = "wrap";
+    renderStudent(parseInt(studentParam, 10));
+  }else if(view === "teacher"){
+    document.getElementById("app").className = "wrap wide";
+    renderTeacherGate();
+  }else if(view === "qr"){
+    document.getElementById("app").className = "wrap wide";
+    renderQrPage();
+  }else if(view === "voice"){
+    document.getElementById("app").className = "wrap";
+    renderVoicePage();
+  }else if(view === "tts"){
+    document.getElementById("app").className = "wrap";
+    renderTtsPage();
+  }else{
+    document.getElementById("app").className = "wrap";
+    renderHome();
+  }
+}
+
+function renderHome(){
+  const app = document.getElementById("app");
+  app.innerHTML = `
+    <div class="center-screen">
+      <h2>🌼 인사 - 발음 연습</h2>
+      <p>학생은 선생님이 보여주신 QR코드로 들어오면<br>번호가 자동으로 입력돼요.<br>지금은 번호를 눌러서 들어가볼까요?</p>
+      <div class="pad" id="pad"></div>
+      <div class="home-links">
+        <a href="?view=teacher">🔒 교사용 대시보드</a>
+        <a href="?view=qr">🖨 학생 QR코드 만들기</a>
+        <a href="?view=voice">🔊 음성 설정</a>
+        <a href="?view=tts">🎙 듣기용 음성 만들기</a>
+      </div>
+    </div>`;
+  const pad = document.getElementById("pad");
+  for(let i=1;i<=12;i++){
+    const b = document.createElement("button");
+    b.textContent = i;
+    b.onclick = () => { window.location.href = "?student=" + i; };
+    pad.appendChild(b);
+  }
+  const testBtn = document.createElement("button");
+  testBtn.textContent = "테스트";
+  testBtn.style.fontSize = "16px";
+  testBtn.style.gridColumn = "span 4";
+  testBtn.style.background = "var(--cream-deep)";
+  testBtn.onclick = () => { window.location.href = "?student=" + TEST_STUDENT_ID; };
+  pad.appendChild(testBtn);
+}
+
+/* =========================================================
+   학생용 화면
+   ========================================================= */
+let studentId = null;
+let mediaRecorder = null;
+let recordedChunks = [];
+let lastFeedbackText = "";
+
+function renderStudent(id){
+  studentId = id;
+  const app = document.getElementById("app");
+  app.innerHTML = `
+    <header>
+      <div class="eyebrow">${studentLabel(studentId)} 친구의 발음 연습 🌷</div>
+      <h1 class="title">${POEM.title}</h1>
+    </header>
+    <div class="bloom-row">${flowerSvg()}${flowerSvg()}${flowerSvg()}</div>
+    <div id="stanzaList"></div>
+    <footer>잘 안 들리면 선생님께 도움을 요청해요 🙋</footer>
+  `;
+  const list = document.getElementById("stanzaList");
+  POEM.stanzas.forEach((st, idx) => list.appendChild(buildStanzaCard(st, idx)));
+  loadBestScores();
+}
+
+function flowerSvg(){
+  return `<svg width="30" height="30" viewBox="0 0 40 40" fill="none">
+    <circle cx="20" cy="20" r="5" fill="#FFC93C"/>
+    <g fill="#FF8C97">
+      <ellipse cx="20" cy="8" rx="6" ry="9"/><ellipse cx="20" cy="32" rx="6" ry="9"/>
+      <ellipse cx="8" cy="20" rx="9" ry="6"/><ellipse cx="32" cy="20" rx="9" ry="6"/>
+    </g>
+  </svg>`;
+}
+
+function buildStanzaCard(stanza, idx){
+  const card = document.createElement("div");
+  card.className = "stanza";
+  card.id = `stanza-${idx}`;
+  card.innerHTML = `
+    <div class="stanza-tag">${stanza.label}</div>
+    <div class="best-badge" id="best-${idx}">아직 연습 전이에요</div>
+    <div class="stanza-text">${escapeHtml(stanza.text)}</div>
+    <div class="btn-row">
+      <button class="big-btn btn-listen" onclick="playListen(${idx})">🔊 듣기</button>
+      <button class="big-btn btn-record" id="recBtn-${idx}" onclick="toggleRecord(${idx})">🎙 따라읽기</button>
+    </div>
+    <div class="status-line" id="status-${idx}"></div>
+    <div class="result" id="result-${idx}">
+      <div class="hearts-big" id="heartsBig-${idx}"></div>
+      <div class="feedback-text" id="feedbackText-${idx}"></div>
+      <div class="result-actions">
+        <button class="pill-btn pill-replay" onclick="replayFeedback(${idx})">🔊 다시 듣기</button>
+        <button class="pill-btn pill-retry" onclick="retry(${idx})">🔁 다시 도전하기</button>
+      </div>
+    </div>
+  `;
+  return card;
+}
+
+function escapeHtml(s){
+  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\n/g,"<br>");
+}
+
+function speakKorean(text, onend){
+  ensureVoicesLoaded().then(() => {
+    try{
+      window.speechSynthesis.cancel();
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = "ko-KR"; utter.rate = 0.88; utter.pitch = 1.05;
+      const krVoice = pickKoreanVoice();
+      if(krVoice) utter.voice = krVoice;
+      if(onend) utter.onend = onend;
+      window.speechSynthesis.speak(utter);
+    }catch(e){ console.error("TTS error", e); if(onend) onend(); }
+  });
+}
+
+/* ---- 음성 목록 로딩 & 선택 ----
+   안드로이드/태블릿에서 흔한 문제: getVoices()가 처음 호출될 때 빈 배열을
+   반환해서, 한국어 음성을 못 찾고 기기 기본(영어 등) 음성으로 읽혀
+   "외국인이 한국어 읽는" 듣 들리는 경우가 많습니다.
+   voiceschanged 이벤트를 기다렸다가 다시 목록을 가져오면 해결됩니다. */
+let cachedVoices = [];
+let voicesLoadedPromise = null;
+let preferredVoiceURI = localStorage.getItem("preferredVoiceURI") || null;
+
+function ensureVoicesLoaded(){
+  if(cachedVoices.length) return Promise.resolve(cachedVoices);
+  if(voicesLoadedPromise) return voicesLoadedPromise;
+  voicesLoadedPromise = new Promise(resolve => {
+    const existing = window.speechSynthesis.getVoices();
+    if(existing && existing.length){ cachedVoices = existing; resolve(cachedVoices); return; }
+    const handler = () => {
+      cachedVoices = window.speechSynthesis.getVoices();
+      window.speechSynthesis.removeEventListener("voiceschanged", handler);
+      resolve(cachedVoices);
+    };
+    window.speechSynthesis.addEventListener("voiceschanged", handler);
+    setTimeout(() => {
+      cachedVoices = window.speechSynthesis.getVoices();
+      resolve(cachedVoices);
+    }, 1200);
+  });
+  return voicesLoadedPromise;
+}
+
+function pickKoreanVoice(){
+  if(!cachedVoices || cachedVoices.length === 0) return null;
+  if(preferredVoiceURI){
+    const chosen = cachedVoices.find(v => v.voiceURI === preferredVoiceURI);
+    if(chosen) return chosen;
+  }
+  const exact = cachedVoices.filter(v => v.lang && v.lang.toLowerCase() === "ko-kr");
+  const loose = cachedVoices.filter(v => v.lang && v.lang.toLowerCase().startsWith("ko"));
+  const pool = exact.length ? exact : loose;
+  if(pool.length === 0) return null;
+  const google = pool.find(v => /google/i.test(v.name));
+  return google || pool[0];
+}
+
+/* =========================================================
+   음성 설정 화면 - 기기에 설치된 한국어 음성 중 가장 자연스러운
+   것을 직접 골라서 저장할 수 있는 화면 (?view=voice)
+   ========================================================= */
+async function renderVoicePage(){
+  const app = document.getElementById("app");
+  app.innerHTML = `
+    <div class="center-screen" style="min-height:24vh;">
+      <h2>🔊 음성(목소리) 설정</h2>
+      <p>이 태블릿에서 "듣기"에 사용할 한국어 목소리를 골라 보세요.<br>여러 개 있다면 "들어보기"로 비교해 보세요.</p>
+    </div>
+    <div id="voiceList" style="max-width:480px;margin:0 auto;">불러오는 중...</div>
+    <div style="text-align:center;margin-top:18px;"><a href="?" class="pill-btn pill-replay" style="text-decoration:none;display:inline-block;">🏠 홈으로</a></div>
+  `;
+  await ensureVoicesLoaded();
+  const list = document.getElementById("voiceList");
+  const koVoices = cachedVoices.filter(v => v.lang && v.lang.toLowerCase().startsWith("ko"));
+  if(koVoices.length === 0){
+    list.innerHTML = `
+      <div class="gate" style="margin:20px auto;">
+        <p style="margin:0;">이 기기에서 한국어 음성을 한 개도 찾지 못했어요.<br><br>
+        설정 → 일반 관리 → 텍스트 음성 변환(TTS) → 선호하는 엔진에서<br>
+        <b>Google 텍스트 음성 변환 엔진</b>을 선택하고,<br>
+        음성 데이터에서 <b>한국어</b>를 설치한 뒤 이 페이지를 새로고침 해 주세요.</p>
+      </div>`;
+    return;
+  }
+  list.innerHTML = koVoices.map(v => `
+    <div class="stanza" style="padding:14px 18px;">
+      <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+        <input type="radio" name="voiceChoice" value="${v.voiceURI}" ${v.voiceURI===preferredVoiceURI ? "checked":""} onchange="setPreferredVoice('${v.voiceURI.replace(/'/g,"\\'")}')">
+        <span style="flex:1;font-size:14px;">${escapeHtml(v.name)} (${v.lang})</span>
+        <button class="pill-btn pill-replay" type="button" onclick="testVoice('${v.voiceURI.replace(/'/g,"\\'")}')">▶ 들어보기</button>
+      </label>
+    </div>
+  `).join("");
+}
+
+function setPreferredVoice(uri){
+  preferredVoiceURI = uri;
+  localStorage.setItem("preferredVoiceURI", uri);
+}
+
+function testVoice(uri){
+  const v = cachedVoices.find(x => x.voiceURI === uri);
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance("안녕하세요. 목소리를 확인해 보세요.");
+  utter.lang = "ko-KR";
+  if(v) utter.voice = v;
+  window.speechSynthesis.speak(utter);
+}
+
+/* =========================================================
+   Gemini TTS로 "듣기" 버튼용 고품질 한국어 음성 파일을 만드는 화면
+   - 매번 실시간으로 생성하지 않고, 한 번 생성 → 다운로드 →
+     GitHub의 audio/ 폴더에 직접 업로드하는 방식 (시 본문은 고정된
+     텍스트라서 한 번만 만들어두면 계속 재사용할 수 있어요)
+   ========================================================= */
+const TTS_VOICES = [
+  { id: "Kore",    label: "Kore (차분한 여성)" },
+  { id: "Aoede",   label: "Aoede (밝은 여성)" },
+  { id: "Leda",    label: "Leda (또렷한 여성)" },
+  { id: "Puck",    label: "Puck (밝은 남성)" },
+  { id: "Charon",  label: "Charon (차분한 남성)" },
+  { id: "Orus",    label: "Orus (또렷한 남성)" }
+];
+let ttsSelectedVoice = "Kore";
+let ttsResults = {};
+
+async function renderTtsPage(){
+  if(!GEMINI_API_KEY) await loadApiKey();
+  const app = document.getElementById("app");
+  app.innerHTML = `
+    <div class="center-screen" style="min-height:18vh;">
+      <h2>🎙 듣기용 음성 만들기</h2>
+      <p>Google Gemini의 음성 생성(TTS) 기능으로 시 본문을 읽어주는<br>
+      고품질 한국어 음성 파일을 만들어요. 마음에 드는 목소리로 만든 뒤<br>
+      다운로드해서 깃허브의 <b>audio</b> 폴더에 올려주세요.</p>
+    </div>
+    <div class="setup" style="max-width:600px;">
+      <label>목소리 선택</label>
+      <select id="ttsVoiceSelect" style="width:100%;padding:12px;border-radius:10px;border:2px solid #F0DDBF;font-size:15px;margin:8px 0 14px;">
+        ${TTS_VOICES.map(v => `<option value="${v.id}" ${v.id===ttsSelectedVoice?"selected":""}>${v.label}</option>`).join("")}
+      </select>
+    </div>
+    <div id="ttsList"></div>
+    <div style="text-align:center;margin-top:18px;"><a href="?" class="pill-btn pill-replay" style="text-decoration:none;display:inline-block;">🏠 홈으로</a></div>
+  `;
+  document.getElementById("ttsVoiceSelect").onchange = (e) => { ttsSelectedVoice = e.target.value; };
+  renderTtsList();
+}
+
+function renderTtsList(){
+  const list = document.getElementById("ttsList");
+  if(!GEMINI_API_KEY){
+    list.innerHTML = `<div class="gate" style="margin:20px auto;"><p style="margin:0;">Gemini API 키가 설정되어 있지 않아요. 먼저 키를 등록해 주세요.</p></div>`;
+    return;
+  }
+  list.innerHTML = POEM.stanzas.map((st, idx) => {
+    const result = ttsResults[idx];
+    return `
+      <div class="stanza" style="padding:18px 20px;">
+        <div class="stanza-tag">${st.label}</div>
+        <div style="font-size:15px;line-height:1.6;white-space:pre-line;margin:14px 0 14px;color:var(--ink-soft);">${escapeHtml(st.text)}</div>
+        <div class="btn-row" style="margin-top:0;">
+          <button class="big-btn btn-listen" style="font-size:16px;" id="ttsGenBtn-${idx}" onclick="generateTts(${idx})">${result ? "🔁 다시 만들기" : "🎙 음성 생성하기"}</button>
+        </div>
+        <div id="ttsStatus-${idx}" style="text-align:center;font-size:14px;color:var(--ink-soft);margin-top:10px;"></div>
+        <div id="ttsPlayer-${idx}" style="margin-top:10px;">
+          ${result ? `
+            <audio controls style="width:100%;" src="${result.url}"></audio>
+            <div style="text-align:center;margin-top:10px;">
+              <a class="pill-btn pill-retry" style="text-decoration:none;display:inline-block;" href="${result.url}" download="${st.audio.split("/").pop()}">⬇ ${st.audio.split("/").pop()} 다운로드</a>
+            </div>
+          ` : ""}
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+async function generateTts(idx){
+  const stanza = POEM.stanzas[idx];
+  const btn = document.getElementById(`ttsGenBtn-${idx}`);
+  const statusEl = document.getElementById(`ttsStatus-${idx}`);
+  btn.disabled = true;
+  statusEl.textContent = "🎙 음성을 만들고 있어요...";
+  try{
+    const text = stanza.text.replace(/\n/g, ". ");
+    const ttsUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=" + GEMINI_API_KEY;
+    const res = await fetch(ttsUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: `다정하고 또렷한 목소리로, 초등학생을 위해 천천히 읽어주세요: ${text}` }] }],
+        generationConfig: {
+          responseModalities: ["AUDIO"],
+          speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: ttsSelectedVoice } } }
+        }
+      })
+    });
+    const data = await res.json();
+    if(!res.ok) throw new Error(data.error?.message || ("TTS 호출 실패 (status " + res.status + ")"));
+    const part = data?.candidates?.[0]?.content?.parts?.[0];
+    const base64Pcm = part?.inlineData?.data || part?.inline_data?.data;
+    if(!base64Pcm) throw new Error("오디오 데이터를 받지 못했어요.");
+    const wavBlob = pcm16Base64ToWavBlob(base64Pcm, 24000);
+    if(ttsResults[idx]) URL.revokeObjectURL(ttsResults[idx].url);
+    ttsResults[idx] = { url: URL.createObjectURL(wavBlob) };
+    statusEl.textContent = "✅ 생성 완료! 아래에서 들어보고 다운로드하세요.";
+    renderTtsList();
+  }catch(e){
+    console.error(e);
+    statusEl.textContent = "❌ 생성 실패: " + e.message;
+  }finally{
+    const btnAgain = document.getElementById(`ttsGenBtn-${idx}`);
+    if(btnAgain) btnAgain.disabled = false;
+  }
+}
+
+// Gemini TTS는 헤더 없는 raw PCM16(24kHz, mono)을 base64로 반환합니다.
+// 일반 오디오 플레이어/파일에서 바로 쓸 수 있도록 WAV 헤더를 붙여줍니다.
+function pcm16Base64ToWavBlob(base64, sampleRate){
+  const binary = atob(base64);
+  const len = binary.length;
+  const pcmBytes = new Uint8Array(len);
+  for(let i=0;i<len;i++) pcmBytes[i] = binary.charCodeAt(i);
+
+  const buffer = new ArrayBuffer(44 + len);
+  const view = new DataView(buffer);
+  const writeString = (offset, str) => { for(let i=0;i<str.length;i++) view.setUint8(offset+i, str.charCodeAt(i)); };
+  writeString(0, "RIFF");
+  view.setUint32(4, 36 + len, true);
+  writeString(8, "WAVE");
+  writeString(12, "fmt ");
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true);
+  view.setUint16(22, 1, true);
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, sampleRate * 2, true);
+  view.setUint16(32, 2, true);
+  view.setUint16(34, 16, true);
+  writeString(36, "data");
+  view.setUint32(40, len, true);
+  new Uint8Array(buffer, 44).set(pcmBytes);
+  return new Blob([buffer], { type: "audio/wav" });
+}
+
+let activeAudioEl = null;
+function stopAllSpeech(){
+  window.speechSynthesis.cancel();
+  if(activeAudioEl){ activeAudioEl.pause(); activeAudioEl.currentTime = 0; activeAudioEl = null; }
+}
+
+function playListen(idx){
+  stopAllSpeech();
+  const stanza = POEM.stanzas[idx];
+  setStatus(idx, "🔊 잘 들어보세요...");
+  if(stanza.audio){
+    const audioEl = new Audio(stanza.audio);
+    activeAudioEl = audioEl;
+    audioEl.onended = () => { if(activeAudioEl === audioEl){ activeAudioEl = null; setStatus(idx, ""); } };
+    audioEl.onerror = () => {
+      // 오디오 파일이 없거나 재생 실패 → 자동으로 기기 TTS로 대체
+      console.warn("듣기 오디오 파일을 재생할 수 없어 TTS로 대체합니다:", stanza.audio);
+      activeAudioEl = null;
+      speakStanzaTTS(idx);
+    };
+    audioEl.play().catch(() => { activeAudioEl = null; speakStanzaTTS(idx); });
+  }else{
+    speakStanzaTTS(idx);
+  }
+}
+function speakStanzaTTS(idx){
+  const text = POEM.stanzas[idx].text.replace(/\n/g, ". ");
+  speakKorean(text, () => setStatus(idx, ""));
+}
+function replayFeedback(idx){ speakKorean(lastFeedbackText); }
+function setStatus(idx, msg){ const el = document.getElementById(`status-${idx}`); if(el) el.textContent = msg; }
+
+async function toggleRecord(idx){
+  stopAllSpeech();
+  if(mediaRecorder && mediaRecorder.state === "recording"){ mediaRecorder.stop(); return; }
+  try{
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    recordedChunks = [];
+    const mimeType = pickMimeType();
+    mediaRecorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+    mediaRecorder.ondataavailable = (e) => { if(e.data && e.data.size>0) recordedChunks.push(e.data); };
+    mediaRecorder.onstop = () => {
+      stream.getTracks().forEach(t => t.stop());
+      const blob = new Blob(recordedChunks, { type: mediaRecorder.mimeType || "audio/webm" });
+      handleRecordingDone(idx, blob);
+    };
+    mediaRecorder.start();
+    setRecordingUI(idx, true);
+    setStatus(idx, "🔴 녹음 중... 시처럼 천천히 읽어보세요!");
+  }catch(err){
+    console.error(err);
+    setStatus(idx, "마이크를 사용할 수 없어요. 선생님께 권한을 확인해 주세요.");
+  }
+}
+
+function pickMimeType(){
+  const candidates = ["audio/webm;codecs=opus","audio/webm","audio/ogg;codecs=opus","audio/mp4"];
+  for(const c of candidates){
+    if(window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(c)) return c;
+  }
+  return "";
+}
+
+function setRecordingUI(idx, isRecording){
+  const btn = document.getElementById(`recBtn-${idx}`);
+  if(isRecording){ btn.classList.add("recording"); btn.textContent = "⏹ 녹음 끝내기"; }
+  else{ btn.classList.remove("recording"); btn.textContent = "🎙 따라읽기"; }
+}
+
+async function handleRecordingDone(idx, blob){
+  setRecordingUI(idx, false);
+  setStatus(idx, "🤖 AI가 발음을 듣고 있어요...");
+  document.getElementById(`recBtn-${idx}`).disabled = true;
+  try{
+    const { base64, mimeType } = await blobToWavBase64(blob);
+    const analysis = await analyzePronunciation(base64, mimeType, POEM.stanzas[idx].text);
+    showResult(idx, analysis.score, analysis.feedback);
+    await saveRecord(idx, analysis.score, analysis.feedback);
+    loadBestScores();
+  }catch(err){
+    console.error(err);
+    const detail = String((err && err.message) || err).slice(0, 140);
+    setStatus(idx, "분석 중 문제가 생겼어요. 다시 시도해 주세요. (" + detail + ")");
+  }finally{
+    document.getElementById(`recBtn-${idx}`).disabled = false;
+    mediaRecorder = null;
+  }
+}
+
+function blobToBase64(blob){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result.split(",")[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+/* =========================================================
+   브라우저 녹음 결과(보통 audio/webm)는 Gemini가 공식적으로 지원하는
+   오디오 형식이 아닐 수 있어 분석이 실패하는 경우가 있습니다.
+   Web Audio API로 디코딩한 뒤 표준 WAV(PCM)로 다시 인코딩해서
+   호환성을 높입니다. 변환에 실패하면 원본을 그대로 보냅니다.
+   ========================================================= */
+async function blobToWavBase64(blob){
+  try{
+    const arrayBuffer = await blob.arrayBuffer();
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if(!AudioCtx) throw new Error("AudioContext 미지원");
+    const audioCtx = new AudioCtx();
+    const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer.slice(0));
+    const wavBlob = encodeWavBlob(audioBuffer);
+    audioCtx.close();
+    const base64 = await blobToBase64(wavBlob);
+    return { base64, mimeType: "audio/wav" };
+  }catch(e){
+    console.warn("WAV 변환 실패, 원본 오디오로 전송합니다.", e);
+    const base64 = await blobToBase64(blob);
+    return { base64, mimeType: (blob.type || "audio/webm").split(";")[0] };
+  }
+}
+
+function encodeWavBlob(audioBuffer){
+  const numChannels = audioBuffer.numberOfChannels;
+  const sampleRate = audioBuffer.sampleRate;
+  let samples;
+  if(numChannels === 1){
+    samples = audioBuffer.getChannelData(0);
+  }else{
+    const ch0 = audioBuffer.getChannelData(0);
+    const ch1 = audioBuffer.getChannelData(1);
+    samples = new Float32Array(ch0.length);
+    for(let i=0;i<ch0.length;i++) samples[i] = (ch0[i] + ch1[i]) / 2;
+  }
+
+  const buffer = new ArrayBuffer(44 + samples.length * 2);
+  const view = new DataView(buffer);
+  const writeString = (offset, str) => { for(let i=0;i<str.length;i++) view.setUint8(offset+i, str.charCodeAt(i)); };
+
+  writeString(0, "RIFF");
+  view.setUint32(4, 36 + samples.length * 2, true);
+  writeString(8, "WAVE");
+  writeString(12, "fmt ");
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true);  // PCM
+  view.setUint16(22, 1, true);  // mono
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, sampleRate * 2, true); // byte rate
+  view.setUint16(32, 2, true);  // block align
+  view.setUint16(34, 16, true); // bit depth
+  writeString(36, "data");
+  view.setUint32(40, samples.length * 2, true);
+
+  let offset = 44;
+  for(let i=0;i<samples.length;i++){
+    let s = Math.max(-1, Math.min(1, samples[i]));
+    s = s < 0 ? s * 0x8000 : s * 0x7FFF;
+    view.setInt16(offset, s, true);
+    offset += 2;
+  }
+  return new Blob([view], { type: "audio/wav" });
+}
+
+async function analyzePronunciation(base64Audio, mimeType, stanzaText){
+  if(!GEMINI_API_KEY) await loadApiKey();
+  if(!GEMINI_API_KEY){
+    throw new Error("Gemini API 키가 설정되어 있지 않아요. 선생님께 설정을 요청해 주세요.");
+  }
+
+  const prompt = `당신은 초등학생의 한국어 시 낭송 발음을 평가하는 다정하지만 공정한 선생님입니다.
+
+시 원문(학생이 읽어야 하는 정확한 문장):
+"""${stanzaText}"""
+
+[가장 중요한 규칙 - 절대 어기지 마세요]
+- 절대로 오디오에서 실제로 들리지 않은 단어나 구절에 대해 추측하거나 평가하지 마세요.
+- 학생이 시 전체를 다 읽지 않고 일부만 읽다가 멈췄을 수 있습니다. 이 경우, 실제로 들린 부분까지만 평가하세요. 듣지 못한 나머지 부분의 발음이 어땠는지는 절대 언급하거나 지어내지 마세요(예: 듣지 못한 단어의 발음을 "불분명했다"고 쓰면 안 됩니다).
+- 피드백에 등장하는 모든 구체적인 단어나 표현은 실제로 오디오에 존재했던 것이어야 합니다.
+
+[평가 방법]
+1. 먼저 오디오에 실제 사람 목소리가 들리고, 그 내용이 이 시를 낭송하려는 시도인지 확인하세요.
+   - 완전한 무음이거나 잡음만 있는 경우, 또는 시와 전혀 무관한 말(잡담 등)만 한 경우에만 score 1을 주세요.
+2. 학생이 실제로 읽은 부분이 시 원문의 처음부터 어디까지인지 먼저 확인하세요.
+   - 시 전체를 다 읽지 않고 중간에 멈췄다면, 그 자체로는 발음 오류가 아니므로 감점하지 마세요. 단, 들린 부분의 발음 정확도만으로 점수를 매기세요.
+3. 들린 부분의 발음 정확도를 기준으로 1~5점을 매기세요.
+   - 1점: 거의 알아들을 수 없거나 원문과 거의 무관함
+   - 2점: 원문은 알아볼 수 있으나 발음 오류, 생략, 띄어 읽기 무시가 많음
+   - 3점: 전체적으로 알아들을 수 있고 발음도 괜찮은 편이나, 부정확한 단어가 몇 개 있거나 속도/끊어 읽기가 다소 부자연스러움
+   - 4점: 발음이 대체로 정확하고 자연스러우며, 사소한 오류가 1~2개 정도만 있음
+   - 5점: 발음, 띄어 읽기, 속도가 모두 정확하고 자연스러움
+4. 학생이 실제로 또박또박 읽으려고 노력한 경우라면 1점으로 과도하게 낮추지 마세요. 애매할 때는 들리는 그대로의 정확도를 기준으로 판단하세요.
+
+[피드백 작성 규칙]
+- 점수의 근거가 되는 구체적인 사실(예: 어떤 부분의 발음이 부정확했는지, 속도가 어땠는지)을, 실제로 들린 내용만 가지고 한 문장에 담으세요.
+- 만약 학생이 시 전체를 다 읽지 않고 일부만 읽었다면, "~까지 잘 읽었어요" 처럼 어디까지 읽었는지를 자연스럽게 언급하고 나머지도 읽어보자고 다정하게 권유하세요.
+- 점수가 낮아도 솔직하게 알려주되, 다시 도전하고 싶게 다정한 말투로 작성하세요.
+- 점수와 피드백 내용이 서로 모순되면 안 됩니다.
+
+반드시 아래 JSON 형식으로만 응답하세요. 다른 텍스트, 설명, 코드블록 기호는 절대 포함하지 마세요:
+{"score": 숫자(1~5), "feedback": "한국어 피드백 문장"}`;
+
+  let res;
+  try{
+    res = await fetch(getGeminiUrl(), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [
+          { text: prompt },
+          { inline_data: { mime_type: mimeType || "audio/wav", data: base64Audio } }
+        ] }],
+        generationConfig: { temperature: 0.3, responseMimeType: "application/json" }
+      })
+    });
+  }catch(networkErr){
+    throw new Error("Gemini 서버에 연결할 수 없어요(네트워크). " + networkErr.message);
+  }
+
+  let resultJson;
+  try{
+    resultJson = await res.json();
+  }catch(parseErr){
+    throw new Error("Gemini 응답을 읽을 수 없어요. (status " + res.status + ")");
+  }
+  if(!res.ok){
+    throw new Error(resultJson.error?.message || ("Gemini 호출 실패 (status " + res.status + ")"));
+  }
+
+  const candidate = resultJson?.candidates?.[0];
+  // 진단용: 분석이 이상하면 브라우저 콘솔(F12)에서 이 로그로 원인을 확인할 수 있어요.
+  console.debug("[analyzePronunciation] mimeType:", mimeType, "finishReason:", candidate?.finishReason, "raw:", candidate?.content?.parts?.[0]?.text);
+
+  const rawText = candidate?.content?.parts?.[0]?.text || "{}";
+  let data;
+  try{ data = JSON.parse(rawText); }
+  catch(e){ data = { score: 1, feedback: "목소리를 정확히 듣지 못했어요. 마이크에 더 가까이 또박또박 다시 읽어볼까요?" }; }
+
+  let score = parseInt(data.score, 10);
+  if(isNaN(score)) score = 1;
+  score = Math.max(1, Math.min(5, score));
+  const feedback = (data.feedback || "잘 읽었어요. 다시 한번 천천히 읽어볼까요?").toString();
+  return { score, feedback };
+}
+
+function showResult(idx, score, feedback){
+  setStatus(idx, "");
+  const result = document.getElementById(`result-${idx}`);
+  result.classList.add("show");
+  document.getElementById(`heartsBig-${idx}`).innerHTML = heartsHtml(score);
+  document.getElementById(`feedbackText-${idx}`).textContent = feedback;
+  lastFeedbackText = feedback;
+  const intro = score === 5 ? "최고예요! " : score >= 3 ? "잘했어요! " : "괜찮아요, 천천히! ";
+  speakKorean(intro + feedback);
+}
+
+function heartsHtml(score){
+  let html = "";
+  for(let i=1;i<=5;i++) html += `<span class="${i<=score ? "heart-on":"heart-off"}">${i<=score ? "♥":"♡"}</span>`;
+  return html;
+}
+
+function retry(idx){
+  stopAllSpeech();
+  document.getElementById(`result-${idx}`).classList.remove("show");
+  setStatus(idx, "");
+}
+
+async function saveRecord(stanzaIdx, score, feedback){
+  const stanzaNum = stanzaIdx + 1;
+  try{
+    await sbInsert("practice_records", { student_id: studentId, stanza: stanzaNum, score: score, feedback: feedback });
+  }catch(e){ console.error("저장 실패", e); }
+}
+
+async function loadBestScores(){
+  for(let i=0;i<POEM.stanzas.length;i++){
+    const stanzaNum = i+1;
+    try{
+      const rows = await sbGet("practice_records",
+        `?student_id=eq.${studentId}&stanza=eq.${stanzaNum}&select=score&order=score.desc&limit=1`);
+      const el = document.getElementById(`best-${i}`);
+      if(!el) continue;
+      if(rows && rows.length>0){
+        el.innerHTML = `최고 기록 <span class="hearts-mini">${heartsHtml(rows[0].score)}</span>`;
+      }else{
+        el.textContent = "아직 연습 전이에요";
+      }
+    }catch(e){ console.error(e); }
+  }
+}
+
+/* =========================================================
+   교사용 대시보드
+   ========================================================= */
+let allRecords = [];
+
+function renderTeacherGate(){
+  if(sessionStorage.getItem(SESSION_KEY) === "1"){ renderDashboard(); return; }
+  const app = document.getElementById("app");
+  app.innerHTML = `
+    <div class="gate">
+      <h2>🔒 교사 로그인</h2>
+      <p style="color:var(--ink-soft); font-size:14px;">비밀번호를 입력해 주세요.</p>
+      <input type="password" id="pwInput" placeholder="비밀번호" />
+      <button onclick="tryLogin()">들어가기</button>
+      <div class="err" id="loginErr"></div>
+    </div>`;
+  document.getElementById("pwInput").addEventListener("keydown", e => { if(e.key === "Enter") tryLogin(); });
+}
+
+async function tryLogin(){
+  const pw = document.getElementById("pwInput").value;
+  const errEl = document.getElementById("loginErr");
+  errEl.textContent = "확인 중...";
+  try{
+    const rows = await sbGet("settings", "?key=eq.teacher_password&select=value");
+    if(!rows || rows.length === 0){ errEl.textContent = "설정을 불러올 수 없어요. (settings.teacher_password)"; return; }
+    if(pw === rows[0].value){
+      sessionStorage.setItem(SESSION_KEY, "1");
+      renderDashboard();
+    }else{ errEl.textContent = "비밀번호가 올바르지 않아요."; }
+  }catch(e){ console.error(e); errEl.textContent = "오류가 발생했어요."; }
+}
+
+function logoutTeacher(){ sessionStorage.removeItem(SESSION_KEY); window.location.href = "?view=teacher"; }
+
+async function renderDashboard(){
+  const app = document.getElementById("app");
+  app.innerHTML = `
+    <h1 class="dash-title">🌷 발음 연습 대시보드</h1>
+    <div class="sub">학생 1~12번 + 테스트 계정의 연습 기록과 성장 모습을 한눈에 확인해요.</div>
+    <div class="toolbar">
+      <div class="summary-cards" id="summaryCards"></div>
+      <div>
+        <button class="refresh-btn" onclick="loadAll()">⟳ 새로고침</button>
+        <button class="logout-btn" onclick="logoutTeacher()">로그아웃</button>
+      </div>
+    </div>
+    <table>
+      <thead><tr><th>번호</th><th>1연 평균</th><th>1연 횟수</th><th>2연 평균</th><th>2연 횟수</th><th>전체 평균</th><th>상세보기</th></tr></thead>
+      <tbody id="tbody"><tr><td colspan="7" class="loading-cell">불러오는 중...</td></tr></tbody>
+    </table>
+  `;
+  await loadAll();
+}
+
+async function loadAll(){
+  const tbody = document.getElementById("tbody");
+  tbody.innerHTML = `<tr><td colspan="7" class="loading-cell">불러오는 중...</td></tr>`;
+  try{
+    allRecords = await sbGet("practice_records", "?select=*&order=created_at.asc");
+  }catch(e){
+    tbody.innerHTML = `<tr><td colspan="7" class="loading-cell">불러오기 실패: ${e.message}</td></tr>`;
+    return;
+  }
+  renderSummary();
+  renderTable();
+}
+
+function renderSummary(){
+  const totalAttempts = allRecords.length;
+  const activeStudents = new Set(allRecords.map(r => r.student_id)).size;
+  const overallAvg = totalAttempts ? (allRecords.reduce((s,r)=>s+r.score,0)/totalAttempts) : 0;
+  const fiveHeartCount = allRecords.filter(r => r.score === 5).length;
+  document.getElementById("summaryCards").innerHTML = `
+    <div class="summary-card"><div class="num">${totalAttempts}</div><div class="lbl">전체 연습 횟수</div></div>
+    <div class="summary-card"><div class="num">${activeStudents}/${STUDENT_IDS.length}</div><div class="lbl">참여 학생 수</div></div>
+    <div class="summary-card"><div class="num">${overallAvg.toFixed(1)}</div><div class="lbl">전체 평균 하트</div></div>
+    <div class="summary-card"><div class="num">${fiveHeartCount}</div><div class="lbl">만점(♥5) 달성 횟수</div></div>
+  `;
+}
+
+function avg(arr){ return arr.length ? arr.reduce((s,v)=>s+v,0)/arr.length : null; }
+
+function renderTable(){
+  const tbody = document.getElementById("tbody");
+  tbody.innerHTML = "";
+  for(const id of STUDENT_IDS){
+    const recs = allRecords.filter(r => r.student_id === id);
+    const s1 = recs.filter(r => r.stanza === 1).map(r => r.score);
+    const s2 = recs.filter(r => r.stanza === 2).map(r => r.score);
+    const all = recs.map(r => r.score);
+    const a1 = avg(s1), a2 = avg(s2), aAll = avg(all);
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td class="student-id">${studentLabel(id)}</td>
+      <td>${a1 !== null ? heartsHtmlT(Math.round(a1)) + ` <span class="count-tag">(${a1.toFixed(1)})</span>` : "-"}</td>
+      <td>${s1.length}</td>
+      <td>${a2 !== null ? heartsHtmlT(Math.round(a2)) + ` <span class="count-tag">(${a2.toFixed(1)})</span>` : "-"}</td>
+      <td>${s2.length}</td>
+      <td>${aAll !== null ? heartsHtmlT(Math.round(aAll)) + ` <span class="count-tag">(${aAll.toFixed(1)})</span>` : "-"}</td>
+      <td><button class="detail-btn" onclick="toggleDetail(${id})">자세히</button></td>
+    `;
+    tbody.appendChild(tr);
+
+    const detailTr = document.createElement("tr");
+    detailTr.className = "detail-row";
+    detailTr.id = `detail-${id}`;
+    detailTr.style.display = "none";
+    detailTr.innerHTML = `<td colspan="7"><div class="detail-wrap">${buildDetailHtml(id, recs)}</div></td>`;
+    tbody.appendChild(detailTr);
+  }
+}
+
+function buildDetailHtml(id, recs){
+  const s1 = recs.filter(r => r.stanza === 1);
+  const s2 = recs.filter(r => r.stanza === 2);
+  const col = (title, list) => {
+    if(list.length === 0) return `<div class="detail-col"><h4>${title}</h4><div class="empty-msg">아직 연습 기록이 없어요.</div></div>`;
+    const items = list.map(r => `
+      <div class="attempt">
+        <time>${formatTime(r.created_at)}</time>
+        <div class="bar"><span style="width:${r.score*20}%"></span></div>
+        <div class="ah">${heartsHtmlT(r.score)}</div>
+        <button class="del" onclick="deleteRecord(${r.id}, ${id})">삭제</button>
+      </div>
+      <div style="font-size:12px; color:var(--ink-soft); margin:-2px 0 6px 86px;">${escapeHtmlT(r.feedback || "")}</div>
+    `).join("");
+    return `<div class="detail-col"><h4>${title}</h4>${items}</div>`;
+  };
+  return `
+    <div class="detail-cols">${col("1연 기록", s1)}${col("2연 기록", s2)}</div>
+    <div class="student-actions"><button class="danger-btn" onclick="deleteAllForStudent(${id})">🗑 ${studentLabel(id)} 전체 기록 삭제</button></div>
+  `;
+}
+
+function toggleDetail(id){
+  const row = document.getElementById(`detail-${id}`);
+  row.style.display = row.style.display === "none" ? "table-row" : "none";
+}
+
+function heartsHtmlT(score){
+  let html = "";
+  for(let i=1;i<=5;i++) html += `<span class="hearts">${i<=score?"♥":'<span class="heart-off">♡</span>'}</span>`;
+  return html;
+}
+function formatTime(iso){
+  const d = new Date(iso);
+  const mm = String(d.getMonth()+1).padStart(2,"0");
+  const dd = String(d.getDate()).padStart(2,"0");
+  const hh = String(d.getHours()).padStart(2,"0");
+  const mi = String(d.getMinutes()).padStart(2,"0");
+  return `${mm}/${dd} ${hh}:${mi}`;
+}
+function escapeHtmlT(s){ return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+async function deleteRecord(recordId, studentIdArg){
+  if(!confirm("이 기록을 삭제할까요?")) return;
+  try{ await sbDelete("practice_records", `?id=eq.${recordId}`); }
+  catch(e){ alert("삭제 실패: " + e.message); return; }
+  await loadAll();
+  const row = document.getElementById(`detail-${studentIdArg}`);
+  if(row) row.style.display = "table-row";
+}
+
+async function deleteAllForStudent(studentIdArg){
+  if(!confirm(`${studentIdArg}번 학생의 모든 연습 기록을 삭제할까요? 되돌릴 수 없어요.`)) return;
+  try{ await sbDelete("practice_records", `?student_id=eq.${studentIdArg}`); }
+  catch(e){ alert("삭제 실패: " + e.message); return; }
+  await loadAll();
+}
+
+/* =========================================================
+   QR코드 생성 화면
+   ========================================================= */
+function renderQrPage(){
+  const app = document.getElementById("app");
+  const here = window.location.origin + window.location.pathname;
+  app.innerHTML = `
+    <h1 class="dash-title">🌷 학생용 QR코드</h1>
+    <div class="setup">
+      <label>학생용 주소 기본값이 자동으로 채워져 있어요. 필요하면 수정하세요.</label>
+      <input id="baseUrl" value="${here}" />
+      <button onclick="generateQrs()">QR코드 13개 만들기 (학생 12 + 테스트 1)</button>
+    </div>
+    <div class="printbar"><button onclick="window.print()">🖨 인쇄하기</button></div>
+    <div class="qr-grid" id="qrGrid"></div>
+  `;
+  generateQrs();
+}
+
+function generateQrs(){
+  let base = document.getElementById("baseUrl").value.trim();
+  if(!base){ alert("주소를 입력해 주세요."); return; }
+  const grid = document.getElementById("qrGrid");
+  grid.innerHTML = "";
+  for(const i of STUDENT_IDS){
+    const sep = base.includes("?") ? "&" : "?";
+    const url = `${base}${sep}student=${i}`;
+    const card = document.createElement("div");
+    card.className = "qr-card";
+    if(i === TEST_STUDENT_ID) card.style.background = "#FFF6DD";
+    card.innerHTML = `<div class="num">${studentLabel(i)}</div><div class="qr" id="qr-${i}"></div><div class="url">${url}</div>`;
+    grid.appendChild(card);
+    new QRCode(document.getElementById(`qr-${i}`), { text: url, width: 140, height: 140 });
+  }
+}
+</script>
+</body>
+</html>
